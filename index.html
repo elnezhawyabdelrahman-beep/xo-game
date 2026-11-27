@@ -73,9 +73,15 @@ updateProgress();render();
 
 let deferredInstallPrompt=null;
 const installBtn=$('installBtn');
-window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;installBtn.textContent='⬇️ تثبيت اللعبة';});
-window.addEventListener('appinstalled',()=>{installBtn.textContent='✓ تم تثبيت اللعبة';installBtn.disabled=true;deferredInstallPrompt=null;});
+const runningAsInstalledApp=()=>window.matchMedia('(display-mode: standalone)').matches||window.matchMedia('(display-mode: fullscreen)').matches||navigator.standalone===true;
+function syncInstallButton(){if(installBtn)installBtn.hidden=runningAsInstalledApp();}
+syncInstallButton();
+window.addEventListener('pageshow',syncInstallButton);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)syncInstallButton();});
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;if(!runningAsInstalledApp()){installBtn.hidden=false;installBtn.textContent='⬇️ تثبيت اللعبة';}});
+window.addEventListener('appinstalled',()=>{deferredInstallPrompt=null;installBtn.hidden=true;});
 installBtn.addEventListener('click',async()=>{
+ if(runningAsInstalledApp()){installBtn.hidden=true;return;}
  if(deferredInstallPrompt){deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(choice&&choice.outcome==='accepted')installBtn.textContent='✓ جاري التثبيت';return;}
  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
  alert(isIOS?'لتثبيت اللعبة على iPhone أو iPad: اضغط زر المشاركة في Safari ثم اختر «إضافة إلى الشاشة الرئيسية».':'لتثبيت اللعبة: افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». إذا لم يظهر الخيار، افتح الرابط في Chrome بعد تحميل الصفحة.');
