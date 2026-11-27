@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b18">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080b18"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="XO ARENA"><link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="./icon.svg">
 <title>XO ARENA — ساحة التحدي</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +19,7 @@ button,select{font:inherit;color:inherit}button{cursor:pointer}.wrap{width:min(1
 </style></head>
 <body><canvas id="fx"></canvas><div class="flash" id="flash"></div>
 <div class="wrap">
-<header class="top"><div class="brand"><div class="brandmark">X✦O</div><div><h1>XO ARENA</h1><p>ساحة التحدي • العب بذكاء، واربح بأسلوبك</p></div></div><div class="topstats"><div class="pill">🪙 نقاطك <b id="xpTop">0</b></div><div class="pill">🏆 رتبتك <b id="levelTop">مبتدئ</b></div></div></header>
+<header class="top"><div class="brand"><div class="brandmark">X✦O</div><div><h1>XO ARENA</h1><p>ساحة التحدي • العب بذكاء، واربح بأسلوبك</p></div></div><div class="topstats"><button class="action primary" id="installBtn" type="button">⬇️ تثبيت اللعبة</button><div class="pill">🪙 نقاطك <b id="xpTop">0</b></div><div class="pill">🏆 رتبتك <b id="levelTop">مبتدئ</b></div></div></header>
 <div class="layout"><main class="panel game"><div class="section-head"><div><div class="eyebrow">ARENA MATCH</div><h2>ابدأ معركتك</h2></div><span class="tag">● جاهز للعب</span></div>
 <div class="modebar"><button class="mode active" id="modeAI">🤖 ضد الذكاء الاصطناعي</button><button class="mode" id="modeFriend">👥 لاعبان</button></div>
 <div class="difficulty" id="difficultyRow">مستوى الذكاء <select id="difficulty"><option value="easy">🟢 مبتدئ</option><option value="medium" selected>🔵 متوسط</option><option value="hard">🟣 صعب</option><option value="expert">🔥 خبير</option><option value="master">👑 أسطوري</option></select></div>
@@ -70,4 +70,16 @@ function drawParticles(){anim=1;ctx.clearRect(0,0,innerWidth,innerHeight);partic
 $('modeAI').onclick=()=>setMode('ai');$('modeFriend').onclick=()=>setMode('friend');$('new').onclick=newRound;$('again').onclick=newRound;$('closeResult').onclick=()=>$('result').classList.remove('show');$('reset').onclick=()=>{if(!confirm('هل تريد تصفير نتائج الجلسة ورصيدك ورتبتك؟'))return;scores={X:0,O:0,D:0};points=0;rankScore=0;played=0;winsCount=0;draws=0;expertWins=0;updateProgress();newRound()};$('hint').onclick=suggest;$('ask').onclick=()=>{$('assistantModal').classList.add('show');assistant('analyze')};$('analyze').onclick=()=>assistant('analyze');$('bestMove').onclick=()=>assistant('analyze');$('closeAssistant').onclick=()=>$('assistantModal').classList.remove('show');
 let musicCtx=null,musicNodes=[];function musicOn(){try{musicCtx=musicCtx||new(window.AudioContext||window.webkitAudioContext)();musicCtx.resume();let master=musicCtx.createGain();master.gain.value=.025;master.connect(musicCtx.destination);[110,164.81,220].forEach((hz,i)=>{let o=musicCtx.createOscillator(),g=musicCtx.createGain();o.type=i===1?'triangle':'sine';o.frequency.value=hz;g.gain.value=i===0?.5:.18;o.connect(g);g.connect(master);o.start();musicNodes.push(o,g)});musicNodes.push(master)}catch(e){$('music').checked=false}}function musicOff(){if(musicCtx){musicNodes.forEach(n=>{try{if(n.stop)n.stop()}catch(e){}try{if(n.disconnect)n.disconnect()}catch(e){}});musicNodes=[];musicCtx.close();musicCtx=null}}$('music').onchange=()=>{$('music').checked?musicOn():musicOff()};
 updateProgress();render();
+
+let deferredInstallPrompt=null;
+const installBtn=$('installBtn');
+window.addEventListener('beforeinstallprompt',event=>{event.preventDefault();deferredInstallPrompt=event;installBtn.textContent='⬇️ تثبيت اللعبة';});
+window.addEventListener('appinstalled',()=>{installBtn.textContent='✓ تم تثبيت اللعبة';installBtn.disabled=true;deferredInstallPrompt=null;});
+installBtn.addEventListener('click',async()=>{
+ if(deferredInstallPrompt){deferredInstallPrompt.prompt();const choice=await deferredInstallPrompt.userChoice;deferredInstallPrompt=null;if(choice&&choice.outcome==='accepted')installBtn.textContent='✓ جاري التثبيت';return;}
+ const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ alert(isIOS?'لتثبيت اللعبة على iPhone أو iPad: اضغط زر المشاركة في Safari ثم اختر «إضافة إلى الشاشة الرئيسية».':'لتثبيت اللعبة: افتح قائمة المتصفح ⋮ ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية». إذا لم يظهر الخيار، افتح الرابط في Chrome بعد تحميل الصفحة.');
+});
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));}
+
 </script></body></html>
