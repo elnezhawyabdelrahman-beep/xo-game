@@ -8,7 +8,7 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#080b18",
   "theme_color": "#080b18",
   "icons": [
@@ -17,6 +17,13 @@
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "جولة جديدة",
+      "short_name": "جولة جديدة",
+      "url": "./?new=1"
     }
   ]
 }
