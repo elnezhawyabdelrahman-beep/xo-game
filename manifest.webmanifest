@@ -18,12 +18,5 @@
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }
-  ],
-  "shortcuts": [
-    {
-      "name": "جولة جديدة",
-      "short_name": "جولة جديدة",
-      "url": "./?new=1"
-    }
   ]
 }
