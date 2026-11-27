@@ -1,0 +1,22 @@
+{
+  "id": "./",
+  "name": "XO ARENA — ساحة التحدي",
+  "short_name": "XO ARENA",
+  "description": "لعبة إكس أو بتحديات وذكاء اصطناعي",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080b18",
+  "theme_color": "#080b18",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
